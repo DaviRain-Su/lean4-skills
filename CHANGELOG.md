@@ -1,5 +1,13 @@
 # Changelog
 
+## v4.8.5 (September 2026)
+
+Routing correction for `/lean4:golf`'s escalation (#55). Documentation and contract check only.
+
+### Fixed
+
+- **Golf no longer hands "statement changes or multi-file refactor" to the axiom-eliminator agent.** That agent is axiom/assumption hygiene only, but three golf-side handoff lines (`golf.md`, `agents/proof-golfer.md`, `references/proof-golfing.md` ×2) used it as a generic "bigger surgery" target. The routing is now: a candidate that would need a **statement change** is rejected and the proposed change reported for explicit approval, never applied (golf and `/lean4:refactor` both keep statements fixed; an unsuitable candidate is not evidence the statement is wrong, so the agent hands the decision back with `next_action = stop`, never `redraft`); a **multi-file or strategy-level refactor** — helper extraction, moving declarations between files, a different proof approach — hands off to `/lean4:refactor` by returning the proposal to the parent (the golfer never expands its file ownership); axiom-eliminator is used **only** for axiom/assumption hygiene. `refactor.md` now states it is golf's escalation target, and its Verify step uses the dependency-aware `lake lean <file>` gate so a cross-file batch cannot false-fail against a stale `.olean`. Check 40 pins per-file routing anchors, per-line consistency at every duplicated site (each multi-file line names `/lean4:refactor`, each axiom-eliminator handoff is restricted to hygiene), the `stop`-not-`redraft` signal, and rejects the old formulation.
+
 ## v4.8.4 (September 2026)
 
 Hardening for the review-output validator's schema loader (#189, the post-#187 follow-up). Trusted-installation edge case; no behavior change for a valid schema.
